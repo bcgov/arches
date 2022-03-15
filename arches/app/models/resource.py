@@ -70,11 +70,11 @@ class Resource(models.ResourceInstance):
         self.tiles = []
 
     def get_descriptor(self, descriptor):
-        module = importlib.import_module("arches.app.functions.primary_descriptors")
-        PrimaryDescriptorsFunction = getattr(module, "PrimaryDescriptorsFunction")()
         functionConfig = models.FunctionXGraph.objects.filter(graph_id=self.graph_id, function__functiontype="primarydescriptors")
         if len(functionConfig) == 1:
-            return PrimaryDescriptorsFunction.get_primary_descriptor_from_nodes(self, functionConfig[0].config[descriptor])
+            module = importlib.import_module(functionConfig[0].config['module'])
+            PrimaryDescriptorsFunction = getattr(module, functionConfig[0].config['class_name'])()
+            return PrimaryDescriptorsFunction.get_primary_descriptor_from_nodes(self, functionConfig[0].config['descriptor_types'][descriptor])
         else:
             return "undefined"
 
@@ -515,7 +515,7 @@ class Resource(models.ResourceInstance):
             resourceinstanceid=self.resourceinstanceid, start=start, limit=limit, resourceinstance_graphid=resourceinstance_graphid,
         )
 
-        
+
 
         ret["total"] = resource_relations["hits"]["total"]
         instanceids = set()
