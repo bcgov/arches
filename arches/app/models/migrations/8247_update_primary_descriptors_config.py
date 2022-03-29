@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [("models", "7874_node_alias"), ]
+    dependencies = [("models", "7128_resource_instance_filter"), ]
     operations = [
         migrations.RunSQL(
             sql="""
