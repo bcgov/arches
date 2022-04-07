@@ -33,8 +33,24 @@ define(['arches',
          */
         processData: function(features)
         {
+            features.popupFeatures.forEach(featureData => {
+                featureData.showAll = ko.observable(false);
+                featureData.toggleShowAll = function () {
+                    featureData.showAll(!featureData.showAll());
+                };
+                featureData.showExpandButton = this.showExpandButton;
+            });
             return features;
         },
+        showExpandButton: function(container) {
+            var div = $(container).siblings(".hover-feature");
+            if (div.length > 0)
+            {
+                return (div[0].offsetWidth < div[0].scrollWidth ||
+                    div[0].offsetHeight < div[0].scrollHeight);
+
+            }
+        }
 
     };
     return provider;

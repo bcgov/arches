@@ -24,7 +24,8 @@
     <!--/ko-->
     <div class="hover-feature-body">
         {% block body %}
-        <div class="hover-feature" data-bind="html: map_popup"></div>
+        <div class="hover-feature" data-bind="style: {'-webkit-line-clamp': showAll() ? 'none' : '4'}, html: map_popup"></div>
+        <div data-bind="click: function(){showAll(!showAll())}, visible: showExpandButton($element, $data)"  class="hover-feature-expand">...</div>
         <!-- ko if: resourceinstanceid -->
         <div class="hover-feature-metadata-block">
             <div class="hover-feature-metadata">
