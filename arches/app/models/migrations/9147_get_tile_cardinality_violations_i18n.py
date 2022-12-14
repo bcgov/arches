@@ -54,13 +54,14 @@ BEGIN
                  group by t.resourceinstanceid, t.nodegroupid,
                           t.parenttileid
                  having count(*) > 1)
-        select g.name, array_agg(n.name), tv.*
+        select g.name->>'en',
+               array_agg(n.name), tv.*
             from tile_violations tv,
                  nodes n,
                  graphs g
                 where tv.nodegroupid = n.nodegroupid
                   and n.graphid = g.graphid
-            group by g.name, tv.resourceinstanceid, tv.nodegroupid, tv.parent_tileid, tv.tilecount
+            group by g.name->>'en', tv.resourceinstanceid, tv.nodegroupid, tv.parent_tileid, tv.tilecount
     order by nodegroupid, resourceinstanceid;
 END $$
     language plpgsql;
