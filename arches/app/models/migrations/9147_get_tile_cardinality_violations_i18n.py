@@ -3,7 +3,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("models", "8974_rr_load_performance_v2"),
+        ("models", "9068_resource_model_view_defaults"),
     ]
 
     sql_string = """
