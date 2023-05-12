@@ -206,6 +206,10 @@ class GraphDesignerView(GraphBaseView):
                 .distinct()
             )
 
+        serialized_cards = serialized_graph["cards"]
+        serialized_cards.sort(key=lambda card: card['sortorder'] if card['sortorder'] else 0)
+        cardwidgets = serialized_graph["widgets"]
+        cardwidgets.sort(key=lambda cardwidget: cardwidget['sortorder'] if cardwidget['sortorder'] else 0)
         context = self.get_context_data(
             main_script="views/graph-designer",
             datatypes_json=JSONSerializer().serialize(datatypes, exclude=["modulename", "isgeometric"]),
@@ -219,8 +223,8 @@ class GraphDesignerView(GraphBaseView):
             widgets_json=JSONSerializer().serialize(widgets),
             card_components=card_components,
             card_components_json=JSONSerializer().serialize(card_components),
-            cards=JSONSerializer().serialize(serialized_graph["cards"]),
-            cardwidgets=JSONSerializer().serialize(serialized_graph["widgets"]),
+            cards=JSONSerializer().serialize(serialized_cards),
+            cardwidgets=JSONSerializer().serialize(cardwidgets),
             map_layers=models.MapLayer.objects.all(),
             map_markers=models.MapMarker.objects.all(),
             map_sources=models.MapSource.objects.all(),
@@ -272,6 +276,9 @@ class GraphDataView(View):
 
     action = "update_node"
     def get(self, request, graphid, nodeid=None):
+        print("GraphDataView.get %s"% str(request.META))
+        print("GraphDataView.get %s"% self.action)
+
         if self.action == "export_graph":
             graph = get_graphs_for_export([graphid])
             graph["metadata"] = system_metadata()
@@ -317,7 +324,9 @@ class GraphDataView(View):
 
         elif self.action == "get_related_nodes":
             parent_nodeid = request.GET.get("parent_nodeid", None)
+            print("Parent node: %s" % str(parent_nodeid))
             graph = Graph.objects.get(graphid=graphid)
+            print("Graph: %s" % str(graph))
             ret = graph.get_valid_ontology_classes(nodeid=nodeid, parent_nodeid=parent_nodeid)
             return JSONResponse(ret)
 
