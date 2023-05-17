@@ -1767,10 +1767,14 @@ class Graph(models.GraphModel):
                     language = models.Language.objects.get(code=language_tuple[0])
 
                     translation.activate(language=language_tuple[0])
+                    serialized_graph=JSONDeserializer().deserialize(JSONSerializer().serialize(self, force_recalculation=True))
+                    serialized_graph["cards"].sort(key=lambda card: card['sortorder'] if card['sortorder'] else 0)
+                    serialized_graph["widgets"].sort(key=lambda card: card['sortorder'] if card['sortorder'] else 0)
+                    serialized_graph["nodes"].sort(key=lambda card: card['sortorder'] if card['sortorder'] else 0)
 
                     published_graph = models.PublishedGraph.objects.create(
                         publication=publication,
-                        serialized_graph=JSONDeserializer().deserialize(JSONSerializer().serialize(self, force_recalculation=True)),
+                        serialized_graph=serialized_graph,
                         language=language,
                     )
 
