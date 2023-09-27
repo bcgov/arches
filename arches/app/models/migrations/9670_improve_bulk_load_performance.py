@@ -14,6 +14,17 @@ class Migration(migrations.Migration):
             BEGIN
                 alter table tiles enable trigger __arches_check_excess_tiles_trigger;
                 alter table tiles enable trigger __arches_trg_update_spatial_attributes;
+                UPDATE resource_x_resource x
+                SET resourceinstancefrom_graphid = r.graphid
+                FROM resource_instances r
+                WHERE r.resourceinstanceid = x.resourceinstanceidfrom
+                AND x.resourceinstancefrom_graphid is null;
+
+                UPDATE resource_x_resource x
+                SET resourceinstanceto_graphid = r.graphid
+                FROM resource_instances r
+                WHERE r.resourceinstanceid = x.resourceinstanceidto
+                AND x.resourceinstanceto_graphid is null;
             END
         $$
         language plpgsql;
