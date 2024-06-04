@@ -59,6 +59,8 @@ logger = logging.getLogger(__name__)
 
 
 class Resource(models.ResourceInstance):
+    custom_search_class = None
+
     class Meta:
         proxy = True
 
@@ -178,7 +180,7 @@ class Resource(models.ResourceInstance):
                         self.name[language] = self.descriptors[language][descriptor]
                 else:
                     self.descriptors[language][descriptor] = None
-        
+
         super(Resource, self).save()
 
     def displaydescription(self, context=None):
@@ -482,6 +484,13 @@ class Resource(models.ResourceInstance):
                                                 },
                                             }
                                         )
+
+        if not Resource.custom_search_class and settings.CUSTOM_SEARCH_CLASS:
+            Resource.custom_search_class = import_class_from_string(settings.CUSTOM_SEARCH_CLASS)
+
+        if Resource.custom_search_class:
+            Resource.custom_search_class.add_search_terms(self, document, terms)
+
         return document, terms
 
     def delete(self, user={}, index=True, transaction_id=None):
@@ -671,7 +680,7 @@ class Resource(models.ResourceInstance):
             resourceinstancefrom_graphid = relation["resourceinstancefrom_graphid"]
 
             if (
-                resourceid_to not in restricted_instances 
+                resourceid_to not in restricted_instances
                 and resourceid_from not in restricted_instances
                 and user_can_read_graph(user, resourceinstanceto_graphid)
                 and user_can_read_graph(user, resourceinstancefrom_graphid)

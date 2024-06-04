@@ -4,6 +4,8 @@ from arches.app.models.concept import Concept
 from arches.app.utils.betterJSONSerializer import JSONDeserializer
 from arches.app.search.elasticsearch_dsl_builder import Bool, Ids, Match, Nested, SimpleQueryString, QueryString, Terms, Term
 from arches.app.search.components.base import BaseSearchFilter
+from arches.app.models.system_settings import settings
+from arches.app.utils import import_class_from_string
 
 details = {
     "searchcomponentid": "",
@@ -80,6 +82,11 @@ class TermFilter(BaseSearchFilter):
                     search_query.must_not(nested_conceptid_filter)
                 else:
                     search_query.filter(nested_conceptid_filter)
+
+            # Add additional search query if configured
+            if settings.CUSTOM_SEARCH_CLASS:
+                custom_index_class = import_class_from_string(settings.CUSTOM_SEARCH_CLASS)
+                custom_index_class.add_search_filter(search_query, term)
 
         search_results_object["query"].add_query(search_query)
 
