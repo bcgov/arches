@@ -1296,9 +1296,28 @@ class FileListDataType(BaseDataType):
                             except models.File.DoesNotExist:
                                 logger.exception(_("File does not exist"))
 
+            if hasattr(tile, "aliased_data") and hasattr(
+                tile.aliased_data, "site_images"
+            ):
+                print(f"site images: {tile.aliased_data.site_images}")
+            file_list_key = (
+                tile.aliased_data.site_images[0]["file_id"]
+                if hasattr(tile, "aliased_data")
+                and hasattr(tile.aliased_data, "site_images")
+                and tile.aliased_data.site_images[0]["file_id"]
+                else "file-list_" + nodeid
+            )
             files = request.FILES.getlist(
-                "file-list_" + nodeid + "_preloaded", []
-            ) + request.FILES.getlist("file-list_" + nodeid, [])
+                file_list_key + "_preloaded", []
+            ) + request.FILES.getlist(
+                file_list_key,
+                [],
+            )
+            print(f"files: {files}")
+
+            # files = request.FILES.getlist(
+            #     "file-list_" + nodeid + "_preloaded", []
+            # ) + request.FILES.getlist("file-list_" + nodeid, [])
             tile_exists = models.TileModel.objects.filter(pk=tile.tileid).exists()
 
             for file_data in files:
@@ -1374,13 +1393,17 @@ class FileListDataType(BaseDataType):
         mime = MimeTypes()
         tile_data = []
         source_path = kwargs.get("path")
+        print(f"value: {value}")
+        print(f"kwargs: {kwargs}")
         for file_path in [filename.strip() for filename in value.split(",")]:
             tile_file = {}
             try:
                 file_stats = os.stat(file_path)
                 tile_file["lastModified"] = file_stats.st_mtime
                 tile_file["size"] = file_stats.st_size
+                print("Got tile file stats: ", tile_file)
             except FileNotFoundError as e:
+                print("No file")
                 pass
             tile_file["status"] = "uploaded"
             tile_file["name"] = os.path.basename(file_path)
@@ -1389,6 +1412,7 @@ class FileListDataType(BaseDataType):
             file_path = "%s/%s" % (settings.UPLOADED_FILES_DIR, str(tile_file["name"]))
             tile_file["file_id"] = str(uuid.uuid4())
             if source_path:
+                print(f"source_path: {source_path}")
                 source_file = os.path.join(source_path, tile_file["name"])
                 fs = default_storage
                 try:
@@ -1409,6 +1433,7 @@ class FileListDataType(BaseDataType):
                     logger.exception(_("File does not exist"))
 
             else:
+                print(f"trying to create file: ", tile_file)
                 models.File.objects.get_or_create(
                     fileid=tile_file["file_id"], path=file_path
                 )
@@ -1424,8 +1449,11 @@ class FileListDataType(BaseDataType):
     def pre_tile_save(self, tile, nodeid):
         # TODO If possible this method should probably replace 'handle request'
         if tile.data[nodeid]:
+            print(f"tile.data['node_id']: {tile.data[nodeid]}")
             for file in tile.data[nodeid]:
                 try:
+                    print(f"File: {file}")
+                    print(f"File ID: {file['file_id']}")
                     if file["file_id"]:
                         if file["url"] == f'{settings.MEDIA_URL}{file["file_id"]}':
                             val = uuid.UUID(
