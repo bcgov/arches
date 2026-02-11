@@ -75,7 +75,7 @@
                     <div class="form-group">
                         <div class="col-xs-12">
                             <div class="map-card-feature-list">
-                                <div data-bind="style: {opacity: disable() ? 0.5 : 1, 'pointer-events': disable() ? 'none' : 'auto'}">
+                                <div data-bind="css: {'state-disabled': disable()}">
                                     <div class="add-new-feature">
                                         <select
                                             data-bind="
@@ -138,7 +138,7 @@
                                             <td>
                                                 <span class="map-card-feature-name" data-bind="text: feature.geometry.type"></span>
                                             </td>
-                                            <td class="map-card-feature-tool" data-bind="style: {opacity: self.disable() ? 0.5 : 1, 'pointer-events': self.disable() ? 'none' : 'auto'}">
+                                            <td class="map-card-feature-tool" data-bind="css: {'state-disabled': self.disable()}">
                                                 <a href="javascript:void(0);" role="button" data-bind="click: function() { self.editFeature(feature) }, clickBubble: false,
                                                     attr: {'aria-label': $root.translations.editFeature}
                                                 ">
@@ -146,7 +146,7 @@
                                                     <span data-bind="text: $root.translations.edit"></span>
                                                 </a>
                                             </td>
-                                            <td class="map-card-feature-tool" data-bind="style: {opacity: self.disable() ? 0.5 : 1, 'pointer-events': self.disable() ? 'none' : 'auto'}">
+                                            <td class="map-card-feature-tool" data-bind="css: {'state-disabled': self.disable()}">
                                                 <a href="javascript:void(0);" role="button" data-bind="click: function() { self.deleteFeature(feature) }, clickBubble: false,
                                                     attr: {'aria-label': $root.translations.deleteFeature}
                                                 ">
@@ -158,7 +158,7 @@
                                         <!-- /ko -->
                                     </tbody>
                                 </table>
-                                <div class="map-card-zoom-tool" data-bind="style: {opacity: disable() ? 0.5 : 1, 'pointer-events': disable() ? 'none' : 'auto'}">
+                                <div class="map-card-zoom-tool" data-bind="css: {'state-disabled': disable()}">
                                     <button data-bind="click: function() {
                                         self.editGeoJSON(self.featureLookup[widget.node_id()].features(), widget.node_id());
                                     }">
