@@ -158,7 +158,7 @@ class CardXNodeXWidget(SaveSupportsBlindOverwriteMixin, models.Model):
     config = I18n_JSONField(blank=True, null=True, db_column="config")
     label = I18n_TextField(blank=True, null=True)
     visible = models.BooleanField(default=True)
-    sortorder = models.IntegerField(blank=True, null=True, default=None)
+    sortorder = models.IntegerField(blank=True, null=False, default=0)
     source_identifier = models.ForeignKey(
         "self",
         db_column="source_identifier",
@@ -193,6 +193,9 @@ class CardXNodeXWidget(SaveSupportsBlindOverwriteMixin, models.Model):
                 "node",
                 condition=Q(source_identifier__isnull=False),
                 name="unique_node_widget_draft",
+            ),
+            models.UniqueConstraint(
+                fields=["node", "widget"], name="unique_node_widget"
             ),
         ]
 
