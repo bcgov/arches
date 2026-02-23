@@ -24,13 +24,23 @@ def remove_uneditable_from_widgets(apps, schema_editor):
     CardXNodeXWidget = apps.get_model("models", "CardXNodeXWidget")
     Widget = apps.get_model("models", "Widget")
 
-    for widget in Widget.objects.all():
+    widgets_to_remove = Widget.objects.exclude(
+        name__in=[
+            "non-localized-text-widget",
+            "number-widget",
+            "rich-text-widget",
+            "text-widget",
+        ]
+    ).all()
+    for widget in widgets_to_remove:
         config = dict(widget.defaultconfig or {})
         config.pop("uneditable", None)
         widget.defaultconfig = config
         widget.save()
 
-    for card_widget in CardXNodeXWidget.objects.all():
+    for card_widget in CardXNodeXWidget.objects.filter(
+        widget__in=widgets_to_remove
+    ).all():
         config = dict(card_widget.config or {})
         config.pop("uneditable", None)
         card_widget.config = config
