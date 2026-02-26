@@ -59,11 +59,11 @@ var ResourceInstanceSelectViewModel = function(params) {
     this.graphIds = ko.observableArray();
     this.searchString = params.searchString || ko.unwrap(params.node?.config.searchString);
     this.resourceLookup = {};
-    
+
     if (!!params.configForm) {
         this.allowInstanceCreation = false;
     }
-    
+
     /*
         we should really not be using the "renderContext" property, but rather
         we should set the values that define how the component operates directly.
@@ -186,9 +186,9 @@ var ResourceInstanceSelectViewModel = function(params) {
 
     this.openReport = function(resourceId) {
         this.reportResourceId(resourceId);
-        $('#resource-report-panel button').focus();    
+        $('#resource-report-panel button').focus();
     };
-    
+
     this.setValue = function(valueObject) {
         if (self.multiple) {
             valueObject = [valueObject];
@@ -307,7 +307,8 @@ var ResourceInstanceSelectViewModel = function(params) {
     this.resourceToAdd = ko.observable(null);
 
     this.disabled = ko.computed(function() {
-        return ko.unwrap(self.waitingForGraphToDownload) || ko.unwrap(params.disabled) || !!ko.unwrap(params.form?.locked);
+        return ko.unwrap(self.waitingForGraphToDownload) || ko.unwrap(params.disabled) || !!ko.unwrap(params.form?.locked) ||
+            ko.unwrap(params.config?.uneditable);
     });
 
     // this is a hack to get the dropdown to clear properly
@@ -316,7 +317,7 @@ var ResourceInstanceSelectViewModel = function(params) {
     this.clearDropDown = function(){
         self.select2ele.val(null).trigger('change');
     };
-    
+
     this.select2Config = {
         value: self.onlyManageResourceIds ? self.value : self.resourceToAdd,
         clickBubble: true,
@@ -337,7 +338,7 @@ var ResourceInstanceSelectViewModel = function(params) {
                         if(self.displayOntologyTable){
                             self.clearDropDown();
                         }
-                    }, 250);    
+                    }, 250);
                 }
             } else {
                 // This section is used when creating a new resource Instance

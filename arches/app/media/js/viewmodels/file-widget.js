@@ -366,6 +366,7 @@ var FileWidgetViewModel = function(params) {
         acceptedFiles: this.acceptedFiles(),
         maxFilesize: this.maxFilesize(),
         uploadMultiple: self.uploadMulti(),
+        disable: self.disable,
         // maxFiles: Number(this.maxFiles()),
         init: function() {
             self.dropzone = this;

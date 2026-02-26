@@ -153,6 +153,7 @@ class Card(models.CardModel):
 
                 if "widgets" in args[0]:
                     for widget in args[0]["widgets"]:
+                        print(f"widget: {widget}")
                         node_id = widget.get("node_id", None)
                         card_id = widget.get("card_id", None)
                         widget_id = widget.get("widget_id", None)
@@ -160,6 +161,7 @@ class Card(models.CardModel):
                             models.CardXNodeXWidget.objects.update_or_create(
                                 node_id=node_id,
                                 card_id=card_id,
+                                # sortorder=widget.get("sortorder", 0),
                                 defaults={"widget_id": uuid.UUID(widget_id)},
                             )
                         )

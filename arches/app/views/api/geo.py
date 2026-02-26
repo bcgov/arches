@@ -70,8 +70,13 @@ class GeoJSON(APIBase):
         property_tiles = models.TileModel.objects.filter(nodegroup_id__in=nodegroups)
         property_node_map = {}
         property_nodes = models.Node.objects.filter(nodegroup_id__in=nodegroups)
-        exclusive_set, filtered_instance_ids = get_filtered_instances(
-            request.user, self.se, resources=resourceid.split(",")
+
+        exclusive_set, filtered_instance_ids = (
+            get_filtered_instances(
+                request.user, self.se, resources=resourceid.split(",")
+            )
+            if resourceid
+            else ([], [])
         )
         for node in property_nodes:
             property_node_map[str(node.nodeid)] = {"node": node}
@@ -90,11 +95,11 @@ class GeoJSON(APIBase):
         if tileid is not None:
             tiles = tiles.filter(tileid=tileid)
         tiles = tiles.order_by("sortorder")
-        resource_available = str(tile.resourceinstance_id) not in filtered_instance_ids
-        resource_available = (
-            not (resource_available) if exclusive_set else resource_available
-        )
-        tiles = [tile for tile in tiles if resource_available]
+        # resource_available = str(tile.resourceinstance_id) not in filtered_instance_ids
+        # resource_available = (
+        #     not (resource_available) if exclusive_set else resource_available
+        # )
+        # tiles = [tile for tile in tiles if resource_available]
         if limit is not None:
             start = (page - 1) * limit
             end = start + limit

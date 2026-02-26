@@ -51,7 +51,7 @@ DATABASES = {
         "AUTOCOMMIT": True,
         "CONN_MAX_AGE": 0,
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "HOST": "localhost",
+        "HOST": "postgres16-3_arches7-5-2",
         "NAME": "testing_prj",
         "OPTIONS": {
             "options": "-c cursor_tuple_fraction=1",
