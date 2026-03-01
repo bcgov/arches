@@ -34,7 +34,8 @@ var WidgetViewModel = function(params) {
     this.form = params.form || null;
     this.tile = params.tile || null;
     this.widget = params.widget || null;
-    this.inResourceEditor = (typeof params.inResourceEditor === "boolean" ? params.inResourceEditor : null);
+    this.inResourceEditor = (typeof params.inResourceEditor === "boolean" ?
+        params.inResourceEditor : null);
     this.results = params.results || null;
     this.hideEmptyNodes = params.hideEmptyNodes;
     this.displayValue = ko.computed(function() {
@@ -53,6 +54,7 @@ var WidgetViewModel = function(params) {
     this.configKeys = params.configKeys || [];
     this.configKeys.push('label');
     this.configKeys.push('required');
+    this.configKeys.push('uneditable');
     this.valueProperties = params.valueProperties || [];
     if (this.node) {
         this.required = this.node.isrequired;
@@ -98,6 +100,24 @@ var WidgetViewModel = function(params) {
         var obs = ko.observable(self.config()[key]);
         subscribeConfigObservable(obs, key);
     });
+
+    if (ko.isObservable(self.uneditable)) {
+        var uneditableSub = self.uneditable.subscribe(function(val) {
+            if (ko.isWriteableObservable(self.disabled)) {
+                self.disabled(!!val);
+            }
+        });
+        self.disposables.push(uneditableSub);
+        if (ko.isWriteableObservable(self.disabled)) {
+            self.disabled(!!self.uneditable());
+        }
+    }
+
+    this.disable = ko.computed(function() {
+        return ko.unwrap(self.disabled) || (self.uneditable && ko.unwrap(self.uneditable)) || false;
+    });
+
+    this.disposables.push(this.disable);
 
     if (ko.isObservable(this.value) && ko.isObservable(this.defaultValue)) {
         var defaultValue = this.defaultValue();
