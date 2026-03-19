@@ -123,6 +123,9 @@ ko.bindingHandlers.ckeditor = {
     init: (element, valueAccessor, allBindings) => {
         window.jQuery = $;
         require(['ckeditor4', 'ckeditor-jquery'], () => {
+            if (!document.body.contains(element)) {
+                return;
+            }
             initialize(element, valueAccessor, allBindings);
         });
     }
