@@ -23,4 +23,12 @@ sql_items = [
         reverse_sql="drop function __arches_get_json_data_for_view;",
         replace=True,
     ),
+    SQLItem(
+        "__arches_refresh_tile_resource_relationships",
+        format_file_into_sql(
+            "__arches_refresh_tile_resource_relationships.sql", "sql/functions"
+        ),
+        reverse_sql="drop function __arches_refresh_tile_resource_relationships;",
+        replace=True,
+    ),
 ]
