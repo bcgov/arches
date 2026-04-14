@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("models", "12586_tile_cardinality_check"),
+        ("models", "12343_generate_geom_feature_id"),
     ]
 
     operations = [
