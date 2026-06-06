@@ -65,6 +65,7 @@ export default async function createVueApplication(
             }
 
             app.use(PrimeVue, themeConfiguration);
+            app.use(pinia);
             app.use(gettext);
             app.use(ConfirmationService);
             app.use(DialogService);
