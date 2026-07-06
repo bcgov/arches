@@ -1413,18 +1413,51 @@ class FileListDataType(BaseDataType):
 
     def transform_value_for_tile(self, value, **kwargs):
         """
-        Accepts a comma delimited string of file paths as 'value' to create a file datatype value
-        with corresponding file record in the files table for each path. Only the basename of each path is used, so
-        the accuracy of the full path is not important. However the name of each file must match the name of a file in
-        the directory from which Arches will request files. By default, this is the directory in a project as defined
-        in settings.UPLOADED_FILES_DIR.
+        Accepts a comma delimited string of file paths, or a list of file dicts,
+        as 'value' to create a file datatype value with corresponding file record in
+        the files table for each path. Only the basename of each path is used, so
+        the accuracy of the full path is not important. However the name of each file
+        must match the name of a file in the directory from which Arches will request
+        files. By default, this is the directory in a project as defined in
+        settings.UPLOADED_FILES_DIR.
 
+        File dicts that already contain a 'file_id' are already stored on the server
+        and are passed through unchanged without creating a new File record.
         """
 
         mime = MimeTypes()
         tile_data = []
         source_path = kwargs.get("path")
-        for file_path in [filename.strip() for filename in value.split(",")]:
+
+        if isinstance(value, list) and all(isinstance(f, dict) for f in value):
+            files = value
+        else:
+            files = [{"name": fp.strip()} for fp in value.split(",")]
+
+        for file_info in files:
+            # Already-stored file: pass through without creating a new File record.
+            # Only treat it as already-stored when file_id is a valid UUID — upload
+            # keys like "file-list_{tileid}-{nodeid}" must still go through normal
+            # processing.  Also strip frontend-only fields (blob references, widget
+            # IDs) that must not be persisted in tile data.
+            if isinstance(file_info, dict) and file_info.get("file_id"):
+                try:
+                    uuid.UUID(str(file_info["file_id"]))
+                except (ValueError, AttributeError):
+                    pass  # Not a UUID — treat as new file below
+                else:
+                    tile_data.append(
+                        {
+                            k: v
+                            for k, v in file_info.items()
+                            if k not in {"file", "node_id"}
+                        }
+                    )
+                    continue
+
+            file_path = (
+                file_info.get("name", "") if isinstance(file_info, dict) else file_info
+            )
             tile_file = {}
             try:
                 file_stats = os.stat(file_path)
@@ -2153,9 +2186,7 @@ class ResourceInstanceDataType(BaseDataType):
         ret = False
         sql = """
             SELECT * FROM __arches_refresh_tile_resource_relationships('%s') as t;
-        """ % (
-            tile.pk
-        )
+        """ % (tile.pk)
 
         with connection.cursor() as cursor:
             cursor.execute(sql)
