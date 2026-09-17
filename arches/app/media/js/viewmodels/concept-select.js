@@ -12,6 +12,7 @@ var ConceptSelectViewModel = function(params) {
     this.multiple = params.multiple || false;
     this.allowClear = params.allowClear ?? true;
     this.displayName = ko.observable('');
+    var selectElement = null;
 
     WidgetViewModel.apply(this, [params]);
 
@@ -51,6 +52,12 @@ var ConceptSelectViewModel = function(params) {
         return displayVal;
     });
 
+    var ensureOption = function(valueId, text) {
+        if (selectElement && !$(selectElement).find('option[value="' + valueId + '"]').length) {
+            $(selectElement).append(new Option(text, valueId, true, true));
+        }
+    };
+
     this.setNames = function() {
         var names = [];
         self.valueList().forEach(function(val) {
@@ -58,6 +65,7 @@ var ConceptSelectViewModel = function(params) {
                 if (NAME_LOOKUP[val]) {
                     names.push(NAME_LOOKUP[val]);
                     self.displayName(names.join(', '));
+                    ensureOption(val, NAME_LOOKUP[val]);
                 } else {
                     $.ajax(arches.urls.get_pref_label + '?valueid=' + ko.unwrap(val), {
                         dataType: "json"
@@ -65,6 +73,11 @@ var ConceptSelectViewModel = function(params) {
                         NAME_LOOKUP[val] = data.value;
                         names.push(data.value);
                         self.displayName(names.join(', '));
+                        ensureOption(val, data.value);
+                        // Re-sync select2 display after the async option is added.
+                        if (selectElement && self.value() == val) {
+                            $(selectElement).val(val).trigger('change.select2');
+                        }
                     });
                 }
             }
@@ -124,6 +137,7 @@ var ConceptSelectViewModel = function(params) {
         escapeMarkup: function(m) { return m; },
         initComplete: false,
         initSelection: function(el, callback) {
+            selectElement = el;
             var valueList = self.valueList();
             
             var setSelectionData = function(data) {
