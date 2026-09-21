@@ -199,7 +199,7 @@ class Tile(models.TileModel):
         Creates or updates the json stored in a tile's provisionaledits db_column
 
         """
-        if self.tile_collects_data() is True and data != {}:
+        if action == "delete" or (self.tile_collects_data() is True and data != {}):
 
             utc_date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
             timestamp_utc = str(
@@ -305,10 +305,8 @@ class Tile(models.TileModel):
                                 match = False
                                 break
                         if match is True:
-                            message = _(
-                                "This card violates a unique constraint. \
-                                The following value is already saved: "
-                            )
+                            message = _("This card violates a unique constraint. \
+                                The following value is already saved: ")
                             raise TileValidationError(
                                 message + (", ").join(duplicate_values)
                             )
@@ -628,8 +626,20 @@ class Tile(models.TileModel):
                 logger.error(e)
 
         else:
-            self.apply_provisional_edit(user, data={}, action="delete")
+            self.apply_provisional_edit(
+                user, data={}, action="delete", existing_model=self
+            )
             super(Tile, self).save(*args, **kwargs)
+            self.save_edit(
+                user=user,
+                edit_type="tile delete",
+                old_value=self.data,
+                provisional_edit_log_details={
+                    "user": user,
+                    "provisional_editor": user,
+                    "action": "delete tile",
+                },
+            )
 
     def index(self, resource=None):
         """
