@@ -357,6 +357,14 @@
                     <span data-bind="text: $root.translations.delete"></span>
                 </button>
                 <!-- /ko -->
+                <!-- ko if: $parent.provisionalTileViewModel && $parent.provisionalTileViewModel.selectedProvisionalEditIsDelete && $parent.provisionalTileViewModel.selectedProvisionalEditIsDelete() && $parent.card.isWritable -->
+                <button class="btn btn-shim btn-labeled btn-lg fa fa-check btn-mint" data-bind="click: function(){ $parent.provisionalTileViewModel.acceptProvisionalDelete(); }">
+                    <span>{% trans 'Accept Delete' %}</span>
+                </button>
+                <button class="btn btn-shim btn-danger btn-labeled btn-lg fa fa-times" data-bind="click: function(){ $parent.provisionalTileViewModel.resetAuthoritative(); }">
+                    <span data-bind="text: $root.translations.cancel"></span>
+                </button>
+                <!-- /ko -->
                 <!-- ko if: tile.dirty() -->
                     <!-- ko if: $parent.provisionalTileViewModel && !$parent.provisionalTileViewModel.tileIsFullyProvisional() && $parent.card.isWritable -->
                     <button class="btn btn-shim btn-danger btn-labeled btn-lg fa fa-times" data-bind="click: selected().reset">
